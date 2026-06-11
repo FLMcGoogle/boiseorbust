@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bailey's Boise Adventure 🚗</title>
+  <style>
+    :root {
+      --sky: #3b82f6;
+      --sky-dark: #1d4ed8;
+      --road: #1e293b;
+      --muted: #64748b;
+      --accent: #f59e0b;
+      --green: #10b981;
+      --bg: #f1f5f9;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--road);
+      min-height: 100vh;
+    }
+
+    /* ── HERO ── */
+    .hero {
+      background: linear-gradient(135deg, #1e3a5f 0%, #2563eb 50%, #0ea5e9 100%);
+      color: white;
+      text-align: center;
+      padding: 3.5rem 1.5rem 4rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: "";
+      position: absolute;
+      bottom: -1px;
+      left: 0; right: 0;
+      height: 60px;
+      background: var(--bg);
+      clip-path: ellipse(55% 100% at 50% 100%);
+    }
+
+    .hero-photo-wrap {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 1.4rem;
+    }
+
+    .hero-photo {
+      width: 180px;
+      height: 180px;
+      border-radius: 50%;
+      object-fit: cover;
+      object-position: center top;
+      border: 4px solid rgba(255,255,255,0.6);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.35);
+    }
+
+    .hero-emoji { font-size: 3.5rem; display: block; margin-bottom: 0.5rem; }
+
+    .hero h1 {
+      font-size: clamp(2rem, 5vw, 3.2rem);
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      margin-bottom: 0.4rem;
+    }
+
+    .hero .subtitle {
+      font-size: 1.1rem;
+      opacity: 0.85;
+      margin-bottom: 1.5rem;
+    }
+
+    .hero-meta {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+
+    .badge {
+      background: rgba(255,255,255,0.18);
+      border: 1px solid rgba(255,255,255,0.3);
+      border-radius: 999px;
+      padding: 0.35rem 1rem;
+      font-size: 0.9rem;
+      backdrop-filter: blur(4px);
+    }
+
+    /* ── SUMMARY STATS ── */
+    .stats {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+      padding: 2rem 1.5rem 0.5rem;
+      max-width: 860px;
+      margin: 0 auto;
+    }
+
+    .stat-card {
+      flex: 1;
+      min-width: 140px;
+      background: white;
+      border-radius: 16px;
+      padding: 1.2rem 1rem;
+      text-align: center;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+    }
+
+    .stat-card .stat-num { font-size: 1.8rem; font-weight: 800; color: var(--sky); }
+    .stat-card .stat-label {
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-top: 0.15rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    /* ── SUMMARY TABLE ── */
+    .summary-wrap {
+      max-width: 860px;
+      margin: 1.5rem auto 0;
+      padding: 0 1.25rem;
+    }
+
+    .summary-table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+      font-size: 0.85rem;
+    }
+
+    .summary-table th {
+      background: linear-gradient(135deg, var(--sky-dark), var(--sky));
+      color: white;
+      padding: 0.75rem 1rem;
+      text-align: left;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .summary-table td {
+      padding: 0.65rem 1rem;
+      border-bottom: 1px solid #f1f5f9;
+      vertical-align: middle;
+    }
+
+    .summary-table tr:last-child td { border-bottom: none; }
+    .summary-table tr:nth-child(even) td { background: #f8fafc; }
+
+    .summary-table tfoot td {
+      background: #1e293b;
+      color: white;
+      font-weight: 700;
+      border-bottom: none;
+    }
+
+    /* ── DAYS ── */
+    .days {
+      max-width: 860px;
+      margin: 2rem auto 3rem;
+      padding: 0 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .day-card {
+      background: white;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 3px 16px rgba(0,0,0,0.08);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .day-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 24px rgba(0,0,0,0.12);
+    }
+
+    .day-header {
+      background: linear-gradient(135deg, var(--sky-dark), var(--sky));
+      color: white;
+      padding: 1.1rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .day-header.amber  { background: linear-gradient(135deg, #b45309, var(--accent)); }
+    .day-header.green  { background: linear-gradient(135deg, #065f46, var(--green)); }
+    .day-header.purple { background: linear-gradient(135deg, #4c1d95, #7c3aed); }
+    .day-header.teal   { background: linear-gradient(135deg, #134e4a, #14b8a6); }
+    .day-header.red    { background: linear-gradient(135deg, #7f1d1d, #ef4444); }
+
+    .day-label { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; opacity: 0.85; }
+    .day-title { font-size: 1.2rem; font-weight: 800; }
+    .day-date  { font-size: 0.85rem; opacity: 0.85; white-space: nowrap; }
+
+    .day-body { padding: 1.4rem 1.5rem; }
+
+    .stats-row {
+      display: flex;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+      margin-bottom: 1rem;
+    }
+
+    .stats-row span { font-size: 0.9rem; color: var(--muted); }
+    .stats-row strong { color: var(--road); }
+
+    .section-label {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      font-weight: 700;
+      margin-bottom: 0.4rem;
+    }
+
+    .highlights, .stops, .activities {
+      list-style: none;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      margin-bottom: 1rem;
+    }
+
+    .highlights li, .stops li, .activities li {
+      background: var(--bg);
+      border-radius: 8px;
+      padding: 0.25rem 0.7rem;
+      font-size: 0.85rem;
+    }
+
+    .stops li      { background: #fef3c7; }
+    .activities li { background: #d1fae5; }
+
+    .day-note {
+      background: #f0f9ff;
+      border-left: 3px solid var(--sky);
+      border-radius: 0 8px 8px 0;
+      padding: 0.6rem 0.9rem;
+      font-size: 0.85rem;
+      color: #0369a1;
+      margin-bottom: 1rem;
+      font-style: italic;
+    }
+
+    /* ── ROUTE LEGS ── */
+    .route-legs {
+      margin-bottom: 1.1rem;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .route-leg {
+      display: grid;
+      grid-template-columns: 1fr auto auto;
+      gap: 0.5rem;
+      align-items: center;
+      padding: 0.55rem 0.9rem;
+      font-size: 0.83rem;
+      border-bottom: 1px solid #f1f5f9;
+    }
+
+    .route-leg:last-child { border-bottom: none; }
+    .route-leg:nth-child(odd) { background: #f8fafc; }
+
+    .leg-route { font-weight: 600; color: var(--road); }
+
+    .leg-hwy {
+      font-size: 0.75rem;
+      background: var(--sky);
+      color: white;
+      border-radius: 5px;
+      padding: 0.15rem 0.45rem;
+      white-space: nowrap;
+      font-weight: 700;
+    }
+
+    .leg-hwy.green-hwy  { background: var(--green); }
+    .leg-hwy.amber-hwy  { background: var(--accent); color: #1e293b; }
+    .leg-hwy.purple-hwy { background: #7c3aed; }
+
+    .leg-dist {
+      font-size: 0.78rem;
+      color: var(--muted);
+      white-space: nowrap;
+      text-align: right;
+    }
+
+    .avoid-badge {
+      display: inline-block;
+      background: #fee2e2;
+      color: #b91c1c;
+      border-radius: 999px;
+      padding: 0.2rem 0.7rem;
+      font-size: 0.72rem;
+      font-weight: 700;
+      margin-bottom: 0.6rem;
+    }
+
+    .big-day-badge {
+      display: inline-block;
+      background: #fef3c7;
+      color: #92400e;
+      border-radius: 999px;
+      padding: 0.2rem 0.7rem;
+      font-size: 0.72rem;
+      font-weight: 700;
+      margin-bottom: 0.6rem;
+    }
+
+    /* ── OVERNIGHT ── */
+    .overnight {
+      margin-top: 1rem;
+      border-top: 1px solid #e2e8f0;
+      padding-top: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    .overnight .moon { font-size: 1.3rem; }
+    .overnight-info  { flex: 1; min-width: 160px; }
+    .overnight-name  { font-weight: 700; font-size: 0.95rem; }
+    .overnight-sub   { font-size: 0.82rem; color: var(--muted); }
+
+    .call-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: var(--green);
+      color: white;
+      text-decoration: none;
+      border-radius: 999px;
+      padding: 0.45rem 1.1rem;
+      font-size: 0.85rem;
+      font-weight: 700;
+      transition: background 0.15s, transform 0.15s;
+      white-space: nowrap;
+    }
+
+    .call-btn:hover { background: #059669; transform: scale(1.03); }
+    .call-btn.blue  { background: var(--sky); }
+    .call-btn.blue:hover { background: var(--sky-dark); }
+
+    /* ── LINKS ── */
+    .highlights a, .stops a, .activities a {
+      color: inherit;
+      text-decoration: none;
+      border-bottom: 1px dashed rgba(0,0,0,0.25);
+      transition: border-color 0.15s, color 0.15s;
+    }
+    .highlights a:hover { color: var(--sky-dark); border-bottom-color: var(--sky-dark); }
+    .stops a:hover      { color: #92400e; border-bottom-color: #92400e; }
+    .activities a:hover { color: #065f46; border-bottom-color: #065f46; }
+
+    .overnight-name a {
+      color: inherit;
+      text-decoration: none;
+      border-bottom: 1px dashed rgba(0,0,0,0.3);
+    }
+    .overnight-name a:hover { color: var(--sky-dark); }
+
+    .special-card a {
+      color: rgba(255,255,255,0.9);
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+    .special-card a:hover { color: white; }
+
+    /* ── SPECIAL STOP ── */
+    .special {
+      max-width: 860px;
+      margin: 0 auto 3rem;
+      padding: 0 1.25rem;
+    }
+
+    .special-card {
+      background: linear-gradient(135deg, #1e3a5f, #0f4c81);
+      border-radius: 20px;
+      padding: 2rem 1.5rem;
+      color: white;
+      text-align: center;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    }
+
+    .special-card h2 { font-size: 1.5rem; font-weight: 800; margin-bottom: 0.4rem; }
+    .special-card p  { opacity: 0.85; font-size: 0.95rem; line-height: 1.6; }
+
+    footer {
+      text-align: center;
+      padding: 2rem 1rem;
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+
+    @media (max-width: 520px) {
+      .day-header { flex-direction: column; align-items: flex-start; }
+      .summary-table { font-size: 0.75rem; }
+      .summary-table td, .summary-table th { padding: 0.5rem 0.6rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-photo-wrap">
+    <img src="IMG_8315.jpeg" alt="Doug and Bailey McKee" class="hero-photo" />
+  </div>
+  <span class="hero-emoji">🚗</span>
+  <h1>Bailey's Boise Adventure</h1>
+  <p class="subtitle">A father-daughter road trip from Florida to Idaho</p>
+  <div class="hero-meta">
+    <span class="badge">📅 June 12–16, 2026</span>
+    <span class="badge">👨‍👧 Doug &amp; Bailey McKee</span>
+    <span class="badge">🎓 Moving Bailey to Boise</span>
+  </div>
+</div>
+
+<!-- STATS -->
+<div class="stats">
+  <div class="stat-card">
+    <div class="stat-num">~2,900</div>
+    <div class="stat-label">Total Miles</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-num">43–44 hrs</div>
+    <div class="stat-label">Drive Time</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-num">5</div>
+    <div class="stat-label">Days</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-num">6</div>
+    <div class="stat-label">States</div>
+  </div>
+</div>
+
+<!-- SUMMARY TABLE -->
+<div class="summary-wrap">
+  <table class="summary-table">
+    <thead>
+      <tr>
+        <th>Date</th>
+        <th>Route</th>
+        <th>Miles</th>
+        <th>Drive Time</th>
+        <th>Overnight</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>June 12</td>
+        <td>Melbourne → Birmingham</td>
+        <td>~640</td>
+        <td>9.5 hrs</td>
+        <td>Birmingham (Maldia Family)</td>
+      </tr>
+      <tr>
+        <td>June 13</td>
+        <td>Birmingham → Tulsa</td>
+        <td>~690</td>
+        <td>10 hrs</td>
+        <td>Tulsa (Aloft Tulsa Downtown)</td>
+      </tr>
+      <tr>
+        <td>June 14</td>
+        <td>Tulsa → Laramie</td>
+        <td>~800</td>
+        <td>11.5–12 hrs</td>
+        <td>Laramie, WY (Hilton Garden Inn)</td>
+      </tr>
+      <tr>
+        <td>June 15</td>
+        <td>Laramie → Grand Teton NP</td>
+        <td>~380</td>
+        <td>6 hrs</td>
+        <td>Teton Valley Motel, Victor, ID</td>
+      </tr>
+      <tr>
+        <td>June 16</td>
+        <td>Grand Teton NP → Boise</td>
+        <td>~390</td>
+        <td>6 hrs</td>
+        <td>Boise, ID 🎉</td>
+      </tr>
+    </tbody>
+    <tfoot>
+      <tr>
+        <td colspan="2">Totals</td>
+        <td>~2,900 mi</td>
+        <td>~43–44 hrs</td>
+        <td></td>
+      </tr>
+    </tfoot>
+  </table>
+</div>
+
+<!-- DAYS -->
+<div class="days">
+
+  <!-- Day 1 -->
+  <div class="day-card">
+    <div class="day-header amber">
+      <div>
+        <div class="day-label">Day 1</div>
+        <div class="day-title">Melbourne → Birmingham</div>
+      </div>
+      <div class="day-date">Friday, June 12</div>
+    </div>
+    <div class="day-body">
+      <div class="stats-row">
+        <span>🛣️ <strong>~640 miles</strong></span>
+        <span>⏱️ <strong>~9.5 hours</strong></span>
+      </div>
+      <span class="avoid-badge">🚫 Atlanta-free route</span>
+      <div class="section-label">Route Breakdown</div>
+      <div class="route-legs">
+        <div class="route-leg">
+          <span class="leg-route">Melbourne → Orlando</span>
+          <span class="leg-hwy amber-hwy">I-4 W</span>
+          <span class="leg-dist">~70 mi · 1 hr</span>
+        </div>
+        <div class="route-leg">
+          <span class="leg-route">Orlando → Gainesville</span>
+          <span class="leg-hwy">I-75 N</span>
+          <span class="leg-dist">~115 mi · 1.5 hrs</span>
+        </div>
+        <div class="route-leg">
+          <span class="leg-route">Gainesville → Tallahassee</span>
+          <span class="leg-hwy">I-75 N · I-10 W</span>
+          <span class="leg-dist">~160 mi · 2 hrs</span>
+        </div>
+        <div class="route-leg">
+          <span class="leg-route">Tallahassee → Dothan, AL</span>
+          <span class="leg-hwy amber-hwy">US-231 N</span>
+          <span class="leg-dist">~100 mi · 1.5 hrs</span>
+        </div>
+        <div class="route-leg">
+          <span class="leg-route">Dothan → Montgomery</span>
+          <span class="leg-hwy">US-231 N · I-65 N</span>
+          <span class="leg-dist">~100 mi · 1.5 hrs</span>
+        </div>
+        <div class="route-leg">
+          <span class="leg-route">Montgomery → Birmingham</span>
+          <span class="leg-hwy">I-65 N</span>
+          <span class="leg-dist">~90 mi · 1.5 hrs</span>
+        </div>
+      </div>
+      <div class="overnight">
+        <span class="moon">🏠</span>
+        <div class="overnight-info">
+          <div class="overnight-name">Maldia Family — Mountain Brook, AL</div>
+          <div class="overnight-sub"><a href="https://maps.apple.com/?address=3616+Old+Leeds+Rd,Mountain+Brook,AL+35213" target="_blank" rel="noopener">3616 Old Leeds Rd, Mountain Brook, AL 35213</a></div>
+        </div>
+        <a href="tel:+12059028467" class="call-btn blue">📞 205-902-8467</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Day 2 -->
+  <div class="day-card">
+    <div class="day-header">
+      <div>
+        <div class="day-label">Day 2</div>
+        <div class="day-title">Birmingham → Tulsa</div>
+      </div>
+      <div class="day-date">Saturday, June 13</div>
+    </div>
+    <div class="day-body">
+      <div class="stats-row">
+        <span>🛣️ <strong>~690 miles</strong></span>
+        <span>⏱️ <strong>~10 hours</strong></span>
+      </div>
+      <div class="section-label">Route Breakdown</div>
+      <div class="route-legs">
+        <div class="route-leg">
+          <span class="leg-route">Birmingham → Memphis</span>
+          <span class="leg-hwy">I-22 W</span>
+          <span class="leg-dist">~240 mi · 3.5 hrs</span>
+        </div>
+        <div class="route-leg">
+          <span class="leg-route">Memphis → Little Rock</span>
+          <span class="leg-hwy">I-40 W</span>
+          <span class="leg-dist">~140 mi · 2 hrs</span>
+        </div>
+        <div class="route-leg">
+          <span class="leg-route">Little Rock → Fort Smith</span>
+          <span class="leg-hwy">I-40 W</span>
+          <span class="leg-dist">~160 mi · 2 hrs</span>
+        </div>
+        <div class="route-leg">
+          <span class="leg-route">Fort Smith → Tulsa</span>
+          <span class="leg-hwy amber-hwy">US-64 · I-44</span>
+          <span class="leg-dist">~130 mi · 2 hrs</span>
+        </div>
+      </div>
+      <div class="section-label">Optional Stops</div>
+      <ul class="stops">
+        <li>🌊 <a href="https://www.memphistravel.com/article/experience-mississippi-riverfront-tom-lee-park" target="_blank" rel="noopener">Mississippi River overlook — Memphis</a></li>
+        <li>🍖 <a href="https://www.cbqmemphis.com/" target="_blank" rel="noopener">Memphis BBQ lunch</a></li>
+      </ul>
+      <div class="overnight">
+        <span class="moon">🌙</span>
+        <div class="overnight-info">
+          <div class="overnight-name"><a href="https://www.marriott.com/en-us/hotels/tulal-aloft-tulsa-downtown/overview/" target="_blank" rel="noopener">Aloft Tulsa Downtown</a></div>
+          <div class="overnight-sub"><a href="https://maps.apple.com/?address=200+Civic+Center,Tulsa,OK+74103" target="_blank" rel="noopener">200 Civic Center, Tulsa, OK 74103</a></div>
+          <div class="overnight-sub" style="margin-top:0.3rem;">
+            ✅ Check-in: Sat Jun 13 @ 4:00 PM &nbsp;·&nbsp; Check-out: Sun Jun 14 @ 12:00 PM<br/>
+            🔖 Confirmation: <strong>74577998</strong>
+          </div>
+        </div>
+        <a href="tel:+19189478200" class="call-btn">📞 918-947-8200</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Day 3 -->
+  <div class="day-card">
+    <div class="day-header red">
+      <div>
+        <div class="day-label">Day 3 · The Big One</div>
+        <div class="day-title">Tulsa → Laramie</div>
+      </div>
+      <div class="day-date">Sunday, June 14</div>
+    </div>
+    <div class="day-body">
+      <div class="stats-row">
+        <span>🛣️ <strong>~800 miles</strong></span>
+        <span>⏱️ <strong>~11.5–12 hours</strong></span>
+      </div>
+      <span class="big-day-badge">⚡ Big mileage day — sets up the rest of the trip beautifully</span>
+      <div class="section-label">Route Breakdown</div>
+      <div class="route-legs">
+        <div class="route-leg">
+          <span class="leg-route">Tulsa → Wichita</span>
+          <span class="leg-hwy amber-hwy">US-75 N</span>
+          <span class="leg-dist">~185 mi · 2.5 hrs</span>
+        </div>
+        <div class="route-leg">
+          <span class="leg-route">Wichita → Salina</span>
+          <span class="leg-hwy">I-135 N</span>
+          <span class="leg-dist">~95 mi · 1.5 hrs</span>
+        </div>
+        <div class="route-leg">
+          <span class="leg-route">Salina → Denver</span>
+          <span class="leg-hwy">I-70 W</span>
+          <span class="leg-dist">~370 mi · 5 hrs</span>
+        </div>
+        <div class="route-leg">
+          <span class="leg-route">Denver → Cheyenne</span>
+          <span class="leg-hwy">I-25 N</span>
+          <span class="leg-dist">~100 mi · 1.5 hrs</span>
+        </div>
+        <div class="route-leg">
+          <span class="leg-route">Cheyenne → Laramie</span>
+          <span class="leg-hwy purple-hwy">I-80 W</span>
+          <span class="leg-dist">~50 mi · 45 min</span>
+        </div>
+      </div>
+      <div class="overnight">
+        <span class="moon">🌙</span>
+        <div class="overnight-info">
+          <div class="overnight-name"><a href="https://www.hilton.com/en/hotels/larwdgi-hilton-garden-inn-laramie/" target="_blank" rel="noopener">Hilton Garden Inn Laramie</a></div>
+          <div class="overnight-sub"><a href="https://maps.apple.com/?address=2229+Grand+Avenue,Laramie,WY+82070" target="_blank" rel="noopener">2229 Grand Avenue, Laramie, WY 82070</a></div>
+          <div class="overnight-sub" style="margin-top:0.3rem;">
+            ✅ Check-in: Sun Jun 14 @ 3:00 PM &nbsp;·&nbsp; Check-out: Mon Jun 15 @ 12:00 PM<br/>
+            🔖 Confirmation: <strong>3487384402</strong>
+          </div>
+        </div>
+        <a href="tel:+13077455500" class="call-btn">📞 307-745-5500</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Day 4 -->
+  <div class="day-card">
+    <div class="day-header purple">
+      <div>
+        <div class="day-label">Day 4 · The Reward</div>
+        <div class="day-title">Laramie → Grand Teton NP</div>
+      </div>
+      <div class="day-date">Monday, June 15</div>
+    </div>
+    <div class="day-body">
+      <div class="stats-row">
+        <span>🛣️ <strong>~380 miles</strong></span>
+        <span>⏱️ <strong>~6 hours</strong></span>
+      </div>
+      <div class="day-note">Plenty of time to explore and enjoy the park after yesterday's big push.</div>
+      <div class="section-label">Route Breakdown</div>
+      <div class="route-legs">
+        <div class="route-leg">
+          <span class="leg-route">Laramie → Rawlins</span>
+          <span class="leg-hwy purple-hwy">I-80 W</span>
+          <span class="leg-dist">~100 mi · 1.5 hrs</span>
+        </div>
+        <div class="route-leg">
+          <span class="leg-route">Rawlins → Rock Springs</span>
+          <span class="leg-hwy purple-hwy">I-80 W</span>
+          <span class="leg-dist">~75 mi · 1 hr</span>
+        </div>
+        <div class="route-leg">
+          <span class="leg-route">Rock Springs → Pinedale</span>
+          <span class="leg-hwy green-hwy">US-191 N</span>
+          <span class="leg-dist">~100 mi · 1.5 hrs</span>
+        </div>
+        <div class="route-leg">
+          <span class="leg-route">Pinedale → Jackson / Grand Teton</span>
+          <span class="leg-hwy green-hwy">US-191 N</span>
+          <span class="leg-dist">~105 mi · 1.5 hrs</span>
+        </div>
+      </div>
+      <div class="section-label">Suggested Stops</div>
+      <ul class="activities">
+        <li>🏚️ <a href="https://www.nps.gov/grte/learn/historyculture/mormon.htm" target="_blank" rel="noopener">Mormon Row Historic District</a></li>
+        <li>💧 <a href="https://www.nps.gov/grte/planyourvisit/jennylakeplan.htm" target="_blank" rel="noopener">Jenny Lake</a></li>
+        <li>📸 <a href="https://www.nps.gov/places/snake-river-overlook.htm" target="_blank" rel="noopener">Snake River Overlook</a></li>
+        <li>🏛️ <a href="https://www.jacksonwy.gov/235/Town-Square" target="_blank" rel="noopener">Jackson Town Square</a></li>
+        <li>🌅 <a href="https://www.nps.gov/grte/index.htm" target="_blank" rel="noopener">Sunset views of the Tetons</a></li>
+      </ul>
+      <div class="overnight">
+        <span class="moon">🏔️</span>
+        <div class="overnight-info">
+          <div class="overnight-name"><a href="https://www.tetonvalleymotel.com/" target="_blank" rel="noopener">Teton Valley Motel</a></div>
+          <div class="overnight-sub"><a href="https://maps.apple.com/?address=7785+N+Agate+Ave,Victor,ID+83455" target="_blank" rel="noopener">7785 N Agate Ave, Victor, ID 83455</a></div>
+          <div class="overnight-sub" style="margin-top:0.3rem;">
+            ✅ Check-in: Mon Jun 15 @ 3:00 PM &nbsp;·&nbsp; Check-out: Tue Jun 16 @ 11:00 AM
+          </div>
+        </div>
+        <a href="tel:+12087876666" class="call-btn">📞 208-787-6666</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Day 5 -->
+  <div class="day-card">
+    <div class="day-header teal">
+      <div>
+        <div class="day-label">Day 5</div>
+        <div class="day-title">Grand Teton NP → Boise 🎉</div>
+      </div>
+      <div class="day-date">Tuesday, June 16</div>
+    </div>
+    <div class="day-body">
+      <div class="stats-row">
+        <span>🛣️ <strong>~390 miles</strong></span>
+        <span>⏱️ <strong>~6 hours</strong></span>
+      </div>
+      <div class="day-note">Arrive with plenty of time to get Bailey settled into her new home.</div>
+      <div class="section-label">Route Breakdown</div>
+      <div class="route-legs">
+        <div class="route-leg">
+          <span class="leg-route">Jackson → Idaho Falls</span>
+          <span class="leg-hwy amber-hwy">US-26 W</span>
+          <span class="leg-dist">~110 mi · 2 hrs</span>
+        </div>
+        <div class="route-leg">
+          <span class="leg-route">Idaho Falls → Twin Falls</span>
+          <span class="leg-hwy">US-20 W · I-84 W</span>
+          <span class="leg-dist">~130 mi · 2 hrs</span>
+        </div>
+        <div class="route-leg">
+          <span class="leg-route">Twin Falls → Boise</span>
+          <span class="leg-hwy green-hwy">I-84 W</span>
+          <span class="leg-dist">~150 mi · 2 hrs</span>
+        </div>
+      </div>
+      <div class="section-label">Optional Stop</div>
+      <ul class="stops">
+        <li>💦 <a href="https://www.tfid.org/309/Shoshone-Falls" target="_blank" rel="noopener">Shoshone Falls</a></li>
+      </ul>
+      <div class="overnight">
+        <span class="moon">🏡</span>
+        <div class="overnight-info">
+          <div class="overnight-name">
+            <a href="https://maps.apple.com/?address=2727+Snowflake+Ln,Boise,ID" target="_blank" rel="noopener">2727 Snowflake Ln, Boise, ID</a>
+          </div>
+          <div class="overnight-sub">Bailey's new home 🎉</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- SPECIAL STOP CALLOUT -->
+<div class="special">
+  <div class="special-card">
+    <div style="font-size:2.5rem;margin-bottom:0.6rem;">🏔️</div>
+    <h2>Special Stop: Grand Teton National Park</h2>
+    <p>One of America's most stunning national parks — towering peaks, pristine lakes, and unforgettable sunsets. The reward after the big mileage push on Day 3.</p>
+    <a href="https://www.nps.gov/grte/index.htm" target="_blank" rel="noopener" style="display:inline-block;margin-top:1rem;background:rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.4);border-radius:999px;padding:0.4rem 1.2rem;font-size:0.9rem;font-weight:700;color:white;text-decoration:none;">🏔️ NPS Grand Teton Info →</a>
+  </div>
+</div>
+
+<!-- BOISE ARRIVAL -->
+<div style="max-width:860px;margin:0 auto 3rem;padding:0 1.25rem;">
+  <div style="border-radius:20px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,0.15);position:relative;">
+    <img
+      src="https://upload.wikimedia.org/wikipedia/commons/5/5d/Boise%2C_Idaho_2021.jpg"
+      alt="Downtown Boise, Idaho skyline"
+      style="width:100%;display:block;max-height:400px;object-fit:cover;object-position:center;"
+    />
+    <div style="position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,0.75));padding:2rem 1.5rem 1.5rem;color:white;">
+      <div style="font-size:2rem;margin-bottom:0.3rem;">🎉</div>
+      <div style="font-size:1.4rem;font-weight:800;">Welcome to Boise, Bailey!</div>
+      <div style="font-size:0.9rem;opacity:0.85;margin-top:0.25rem;">Your new home — Boise, Idaho</div>
+    </div>
+  </div>
+  <div style="text-align:right;font-size:0.7rem;color:#94a3b8;margin-top:0.4rem;">
+    Photo: Jyoni Shuler · <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener" style="color:#94a3b8;">CC BY-SA 4.0</a>
+  </div>
+</div>
+
+<footer>
+  Made with ❤️ for Bailey McKee &nbsp;·&nbsp; June 2026
+</footer>
+
+</body>
+</html>
